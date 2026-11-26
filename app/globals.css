@@ -29,6 +29,43 @@
 }
 
 /* ═══════════════════════════════════════════ */
+/*  CUSTOM CURSOR                             */
+/* ═══════════════════════════════════════════ */
+.custom-cursor {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent-copper);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  mix-blend-mode: difference;
+}
+
+.custom-cursor-follower {
+  width: 40px;
+  height: 40px;
+  background: rgba(184, 115, 51, 0.2);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  mix-blend-mode: screen;
+}
+
+.custom-cursor.cursor-hover {
+  transform: scale(1.5);
+  background: rgba(184, 115, 51, 0.3);
+}
+
+.custom-cursor-follower.cursor-hover {
+  transform: scale(1.8);
+  background: rgba(184, 115, 51, 0.4);
+}
+
+/* ═══════════════════════════════════════════ */
 /*  BASE STYLES                               */
 /* ═══════════════════════════════════════════ */
 @layer base {
@@ -36,6 +73,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    cursor: none !important;
   }
 
   html {
