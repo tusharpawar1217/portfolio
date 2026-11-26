@@ -26,28 +26,27 @@ module.exports = {
     },
     extend: {
       colors:{
-        primary: "#000000",
-        secondary: "#09090b",
+        primary: "#0d0b1e",
+        secondary: "#15122b",
         accent:{
-          DEFAULT:"#B87333",
-          hover: "#cd8644",
-          light: "#d4a574"
+          DEFAULT:"#e91e8c",
+          hover: "#ff4fa8",
+          light: "#ff66bb",
+          dark: "#cc0073",
+          purple: "#7b5cff"
         },
-        copper: {
-          DEFAULT: "#B87333",
-          light: "#d4a574",
-          dark: "#8c5a28"
+        magenta: {
+          DEFAULT: "#e91e8c",
+          light: "#ff4fa8",
+          dark: "#cc0073",
+          glow: "#e91e8c"
         },
-        zinc: {
-          950: "#09090b",
-          900: "#18181b",
-          800: "#27272a",
-          700: "#3f3f46",
-          600: "#52525b",
-          500: "#71717a",
-          400: "#a1a1aa",
-          300: "#d4d4d8",
+        purple: {
+          DEFAULT: "#7b5cff",
+          light: "#9d7fff",
+          dark: "#5a3ccc"
         },
+        muted: "#b8b5cc",
       },
       keyframes: {
         "accordion-down": {

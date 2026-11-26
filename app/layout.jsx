@@ -3,6 +3,8 @@ import "./globals.css";
 //components
 import Header from "@/components/Header";
 import ParticleGalaxy from "@/components/ParticleGalaxy";
+import CustomCursor from "@/components/CustomCursor";
+import ScrollReveal from "@/components/ScrollReveal";
 
 export const metadata = {
   title: "Tushar Pawar | ML Engineer & Data Scientist",
@@ -21,6 +23,8 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <a href="#main-content" className="skip-to-content">Skip to main content</a>
+        <CustomCursor />
+        <ScrollReveal />
         <ParticleGalaxy />
         <Header />
         <main id="main-content">
