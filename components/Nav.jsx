@@ -19,13 +19,13 @@ const Nav = () => {
   };
 
   return (
-    <nav className="flex items-center gap-1">
+    <nav aria-label="Primary navigation" className="flex items-center gap-7 xl:gap-8">
       {links.map((link, index) => (
         <a
           href={link.path}
           key={index}
           onClick={(e) => handleClick(e, link.path)}
-          className="px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 rounded-full transition-all duration-300"
+          className="nav-link"
         >
           {link.name}
         </a>

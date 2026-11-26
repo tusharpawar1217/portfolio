@@ -14,22 +14,23 @@ module.exports = {
       padding: "15px",
     },
     screens: {
-        sm: '640px',
-        md: '768px',
-        lg: '960px',
-        xl: '1200px',
+      sm: '640px',
+      md: '768px',
+      lg: '960px',
+      xl: '1200px',
     },
     fontFamily: {
-      primary: "var(--font-outfit)",
-      heading: "'Cabinet Grotesk', sans-serif",
-      mono: "'JetBrains Mono', monospace",
+      sans: ["var(--font-primary)", "'Poppins'", "sans-serif"],
+      primary: ["var(--font-primary)", "'Poppins'", "sans-serif"],
+      heading: ["var(--font-primary)", "'Poppins'", "sans-serif"],
+      mono: ["'JetBrains Mono'", "monospace"],
     },
     extend: {
-      colors:{
+      colors: {
         primary: "#0d0b1e",
         secondary: "#15122b",
-        accent:{
-          DEFAULT:"#e91e8c",
+        accent: {
+          DEFAULT: "#e91e8c",
           hover: "#ff4fa8",
           light: "#ff66bb",
           dark: "#cc0073",
@@ -65,25 +66,14 @@ module.exports = {
           "0%, 100%": { opacity: "1", transform: "scale(1)" },
           "50%": { opacity: "0.5", transform: "scale(1.2)" },
         },
-        "fade-in-up": {
-          "0%": { opacity: "0", transform: "translateY(30px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        "float": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "marquee": "marquee-scroll 30s linear infinite",
-        "marquee-slow": "marquee-scroll 45s linear infinite",
         "pulse-green": "pulse-green 2s ease-in-out infinite",
-        "fade-in-up": "fade-in-up 0.6s ease-out forwards",
-        "float": "float 6s ease-in-out infinite",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

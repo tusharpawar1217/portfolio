@@ -1,8 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import React from "react";
+import { useEffect, useRef } from "react";
 import Social from "@/components/Social";
 import {
   FaPhoneAlt,
@@ -15,13 +13,11 @@ import {
   FaPython,
   FaJava,
   FaReact,
-  FaNodeJs,
   FaGit,
   FaDocker,
   FaAws,
   FaLinux,
   FaFigma,
-  FaArrowRight,
   FaArrowDown,
 } from "react-icons/fa";
 import {
@@ -42,7 +38,6 @@ import {
 } from "react-icons/si";
 import { BsArrowUpRight } from "react-icons/bs";
 import Link from "next/link";
-import { useForm, ValidationError } from "@formspree/react";
 
 /* ───────────────────────── DATA ───────────────────────── */
 
@@ -57,9 +52,9 @@ const skills = {
     { icon: <SiPytorch />, name: "PyTorch" },
     { icon: <SiScikitlearn />, name: "Scikit-learn" },
     { icon: <SiOpencv />, name: "OpenCV" },
-    { icon: <span className="text-2xl font-bold">T</span>, name: "Tesseract" },
-    { icon: <span className="text-2xl font-bold">L</span>, name: "Librosa" },
-    { icon: <span className="text-lg font-bold">NLP</span>, name: "NLP" },
+    { icon: <span className="text-lg font-bold">T</span>, name: "Tesseract" },
+    { icon: <span className="text-lg font-bold">L</span>, name: "Librosa" },
+    { icon: <span className="text-sm font-bold">NLP</span>, name: "NLP" },
   ],
   webFrameworks: [
     { icon: <SiFastapi />, name: "FastAPI" },
@@ -84,10 +79,19 @@ const skills = {
 };
 
 const allSkillNames = [
-  ...skills.languages.map(s => s.name),
-  ...skills.aiml.map(s => s.name),
-  ...skills.webFrameworks.map(s => s.name),
-  ...skills.tools.map(s => s.name),
+  ...skills.languages.map((s) => s.name),
+  ...skills.aiml.map((s) => s.name),
+  ...skills.webFrameworks.map((s) => s.name),
+  ...skills.tools.map((s) => s.name),
+];
+
+const featuredHeroStack = [
+  { icon: <SiPytorch />, name: "PyTorch" },
+  { icon: <FaPython />, name: "Python" },
+  { icon: <SiNextdotjs />, name: "Next.js" },
+  { icon: <SiFastapi />, name: "FastAPI" },
+  { icon: <FaDocker />, name: "Docker" },
+  { icon: <FaAws />, name: "AWS" },
 ];
 
 const projects = [
@@ -226,147 +230,191 @@ const achievements = [
   },
 ];
 
-const contactInfo = [
-  {
-    icon: <FaPhoneAlt />,
-    title: "Phone",
-    description: "+91 84858 33673",
-  },
-  {
-    icon: <FaEnvelope />,
-    title: "Email",
-    description: "pawartushar8485@gmail.com",
-  },
-  {
-    icon: <FaMapMarkerAlt />,
-    title: "Address",
-    description: "Pune, Maharashtra - 411007",
-  },
-];
-
-/* ───────────────── ANIMATION VARIANTS ───────────────── */
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 60 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px", amount: 0.2 },
-  transition: { duration: 0.8, ease: "easeOut" },
-};
-
-const staggerChild = (delay = 0) => ({
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-  transition: { duration: 0.6, ease: "easeOut", delay },
-});
-
 /* ────────────────── SECTION COMPONENTS ────────────────── */
 
 /* ═══ 1. HERO ═══ */
 const HeroSection = () => {
+  const heroRef = useRef(null);
+  const desktopPhotoRef = useRef(null);
+  const mobilePhotoRef = useRef(null);
+
+  useEffect(() => {
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (motionQuery.matches) return;
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let scrollOffset = 0;
+    let rafId = null;
+
+    const updateTransform = () => {
+      // Subtle 2-3% opposite parallax from mouse + scroll
+      const tx = -mouseX * 18;
+      const ty = -mouseY * 14 - scrollOffset * 18;
+      [desktopPhotoRef.current, mobilePhotoRef.current].forEach((el) => {
+        if (el) {
+          el.style.setProperty("--px", `${tx.toFixed(2)}px`);
+          el.style.setProperty("--py", `${ty.toFixed(2)}px`);
+        }
+      });
+      rafId = null;
+    };
+
+    const scheduleUpdate = () => {
+      if (!rafId) {
+        rafId = requestAnimationFrame(updateTransform);
+      }
+    };
+
+    const handleMouseMove = (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      scheduleUpdate();
+    };
+
+    const handleScroll = () => {
+      const hero = heroRef.current;
+      if (!hero) return;
+      const rect = hero.getBoundingClientRect();
+      const progress = Math.max(-1, Math.min(1, -rect.top / Math.max(rect.height, 1)));
+      scrollOffset = progress;
+      scheduleUpdate();
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <section
       id="hero"
-      className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20"
+      ref={heroRef}
+      className="relative overflow-hidden min-h-[calc(100vh-76px)] pt-14 md:pt-20 pb-0 flex flex-col justify-between border-b border-[rgba(123,92,255,0.18)]"
     >
-      <div className="container mx-auto relative z-10 px-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Top status */}
-          <motion.div
-            className="flex items-center gap-3 mb-8"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse-green" />
-              <span className="text-sm text-white/60">Available for opportunities</span>
-            </div>
-            <span className="text-sm text-white/30 hidden md:inline">📍 Pune, India</span>
-          </motion.div>
+      {/* Ambient radial glows behind hero image and corners */}
+      <div
+        aria-hidden="true"
+        className="ambient-glow -top-32 -left-32 w-[460px] h-[460px] bg-[#7b5cff]"
+      />
+      <div
+        aria-hidden="true"
+        className="ambient-glow bottom-0 right-4 lg:right-16 w-[440px] h-[440px] bg-[#e91e8c]"
+      />
+      <div
+        aria-hidden="true"
+        className="ambient-glow bottom-16 right-28 lg:right-48 w-[360px] h-[360px] bg-[#7b5cff]"
+      />
 
-          {/* Name with Tagline */}
-          <div className="relative mb-6">
-            <motion.h1
-              className="font-heading font-[800] text-[clamp(3rem,10vw,9rem)] leading-[0.9] tracking-[-0.04em] text-white"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.3 }}
-            >
-              TUSHAR
-              <br />
-              PAWAR<span className="text-accent">.</span>
-            </motion.h1>
+      <div className="container mx-auto px-4 md:px-6 relative z-20 flex-1 flex flex-col justify-between">
+        {/* Main Hero Content Grid */}
+        <div className="relative flex-1 flex flex-col lg:flex-row lg:items-center pt-4 pb-8 lg:pb-12">
+          {/* Left Half: Text, Badge, CTAs */}
+          <div className="w-full lg:w-[60%] xl:w-[58%] text-left relative z-20">
+            {/* Two-Tone Hero Headline */}
+            <h1 className="hero-headline mb-6">
+              <span className="block text-white hero-line-1">
+                Hi, I&apos;m Tushar Pawar
+              </span>
+              <span className="block text-[var(--accent)] hero-line-2">
+                ML Engineer &amp; Data Scientist
+              </span>
+            </h1>
 
-            {/* Vertical Tagline - aligned with bottom of PAWAR */}
-            <motion.div
-              className="hidden lg:flex absolute bottom-0 right-0 items-end gap-4"
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-            >
-              {/* Vertical Line */}
-              <div className="w-[1px] h-20 bg-gradient-to-t from-accent via-accent/50 to-transparent" />
-              
-              {/* Text in two lines */}
-              <div className="pb-1">
-                <p className="font-mono text-[0.7rem] uppercase tracking-[0.2em] leading-[1.8] text-white/40">
-                  Beyond visuals,
-                  <br />
-                  built with vision
-                </p>
+            {/* Outlined Pill / Badge Row */}
+            <div className="flex flex-wrap items-center gap-3 mb-6 hero-stagger-3">
+              <span className="text-sm md:text-base font-medium text-[var(--muted)]">
+                Beyond visuals, built with vision
+              </span>
+              <div className="status-badge">
+                <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse-green" />
+                <span>Open to Work</span>
+                <span className="text-[var(--muted)] text-xs">• Pune, India</span>
               </div>
-            </motion.div>
+            </div>
+
+            {/* Subtitle */}
+            <p className="text-base md:text-lg text-[var(--muted)] max-w-xl mb-8 leading-relaxed hero-stagger-3">
+              Building intelligent systems,{" "}
+              <span className="text-white font-medium">
+                data pipelines, and full-stack applications
+              </span>{" "}
+              with precision, innovation and impact.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-4 mb-8 hero-stagger-4">
+              <a href="#contact" className="pill-btn pill-btn-magenta">
+                Hire Me <BsArrowUpRight className="text-sm" />
+              </a>
+              <a href="#about" className="pill-btn pill-btn-outline">
+                Explore <FaArrowDown className="text-xs" />
+              </a>
+            </div>
+
+            {/* Social Icons */}
+            <div className="hero-stagger-4">
+              <Social />
+            </div>
           </div>
 
-          {/* Subtitle */}
-          <motion.p
-            className="text-lg md:text-xl text-white/50 max-w-xl mb-10 leading-relaxed"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-          >
-            ML Engineer & Data Scientist building intelligent systems,{" "}
-            <span className="text-white/80">data pipelines, and full-stack applications</span> with
-            precision, innovation and impact.
-          </motion.p>
+          {/* Right Half (Mobile/Tablet inline fallback) */}
+          <div className="mt-10 lg:mt-0 lg:hidden flex justify-center relative z-10">
+            <div className="hero-image-enter">
+              <div ref={mobilePhotoRef} className="hero-parallax-img relative w-[270px] sm:w-[330px]">
+                <img
+                  src="/photo.png"
+                  alt="Tushar Pawar portrait cutout"
+                  className="w-full h-auto object-contain drop-shadow-[0_18px_40px_rgba(233,30,140,0.28)]"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {/* CTAs */}
-          <motion.div
-            className="flex flex-wrap items-center gap-4 mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-          >
-            <a href="#contact" className="pill-btn pill-btn-white">
-              Hire Me <BsArrowUpRight className="text-sm" />
-            </a>
-            <a href="#about" className="pill-btn pill-btn-outline">
-              Explore <FaArrowDown className="text-xs" />
-            </a>
-          </motion.div>
-
-          {/* Social Icons */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.9 }}
-          >
-            <Social />
-          </motion.div>
+        {/* "Presented by"-style Bottom Tech Stack Row */}
+        <div className="relative z-20 pb-8 pt-4 lg:w-[62%]">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted)] mb-3.5">
+            Core Stack &amp; Platforms:
+          </p>
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            {featuredHeroStack.map((item, idx) => (
+              <div key={item.name} className="flex items-center gap-4 sm:gap-6">
+                <div className="flex items-center gap-2 text-white/90 hover:text-white transition-colors">
+                  <span className="text-lg sm:text-xl text-white">{item.icon}</span>
+                  <span className="text-sm sm:text-base font-semibold tracking-tight">
+                    {item.name}
+                  </span>
+                </div>
+                {idx < featuredHeroStack.length - 1 && (
+                  <div className="stack-divider" aria-hidden="true" />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, delay: 1.2 }}
-      >
-        <div className="w-[1px] h-16 bg-gradient-to-b from-transparent via-white/30 to-transparent animate-pulse" />
-        <p className="text-white/30 text-[10px] mt-2 uppercase tracking-[0.3em] font-mono">Scroll</p>
-      </motion.div>
+      {/* Desktop Cutout Photo Anchored Bottom-Right Overlapping Section Edge */}
+      <div className="hidden lg:block absolute -bottom-2 right-2 xl:right-10 w-[390px] xl:w-[450px] z-10 pointer-events-none select-none">
+        <div className="hero-image-enter">
+          <div
+            ref={desktopPhotoRef}
+            className="hero-parallax-img relative"
+          >
+            <img
+              src="/photo.png"
+              alt="Tushar Pawar portrait cutout"
+              className="w-full h-auto object-contain drop-shadow-[0_24px_50px_rgba(13,11,30,0.85)]"
+            />
+          </div>
+        </div>
+      </div>
     </section>
   );
 };
@@ -376,56 +424,55 @@ const AboutSection = () => {
   return (
     <section id="about" className="section-padding">
       <div className="container mx-auto max-w-6xl">
-        <motion.p className="section-label" {...fadeInUp}>
-          // ABOUT ME
-        </motion.p>
+        <p className="section-label scroll-reveal">{"// ABOUT ME"}</p>
 
-        <motion.h2 className="section-heading mb-16" {...fadeInUp}>
+        <h2 className="section-heading mb-14 scroll-reveal">
           BUILDING <span className="accent">SOLUTIONS,</span>
           <br />
           SOLVING PROBLEMS WITH DATA.
-        </motion.h2>
+        </h2>
 
-        {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {/* About Text — spans 2 cols */}
-          <motion.div
-            className="bento-card md:col-span-2 xl:col-span-2"
-            {...staggerChild(0.1)}
-          >
-            <p className="text-white/60 leading-[1.8] text-[0.95rem] mb-4">
-              I'm a passionate <span className="text-white">M.Tech candidate</span> specializing in Deep
+          <div className="bento-card md:col-span-2 xl:col-span-2 scroll-reveal">
+            <p className="text-[var(--muted)] leading-[1.85] text-[0.98rem] mb-4">
+              I&apos;m a passionate <span className="text-white font-medium">M.Tech candidate</span> specializing in Deep
               Learning and applied ML. With hands-on experience in building and evaluating
               CNN-BiLSTM-Attention architectures, I thrive on solving complex problems with data-driven approaches.
             </p>
-            <p className="text-white/60 leading-[1.8] text-[0.95rem]">
-              Proficient in <span className="text-white">Python, PyTorch, SQL</span>, and building end-to-end ML
+            <p className="text-[var(--muted)] leading-[1.85] text-[0.98rem]">
+              Proficient in <span className="text-white font-medium">Python, PyTorch, SQL</span>, and building end-to-end ML
               pipelines from data preprocessing through model evaluation. Currently seeking{" "}
-              <span className="text-accent">Machine Learning Engineer, Data Scientist, or Data Engineer</span> roles.
+              <span className="text-[var(--accent-hover)] font-medium">
+                Machine Learning Engineer, Data Scientist, or Data Engineer
+              </span>{" "}
+              roles.
             </p>
-          </motion.div>
+          </div>
 
           {/* Education Card */}
-          <motion.div className="bento-card" {...staggerChild(0.2)}>
+          <div className="bento-card scroll-reveal">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+              <div className="w-10 h-10 rounded-xl bg-[rgba(233,30,140,0.14)] border border-[rgba(233,30,140,0.3)] flex items-center justify-center text-[var(--accent-hover)]">
                 <FaGraduationCap />
               </div>
-              <h3 className="font-heading font-bold text-lg">Education</h3>
+              <h3 className="font-bold text-lg text-white">Education</h3>
             </div>
             <div className="space-y-5">
               {education.map((edu, i) => (
-                <div key={i} className="border-l-2 border-accent/30 pl-4">
+                <div key={i} className="border-l-2 border-[var(--accent-2)] pl-4">
                   <p className="text-white font-medium text-sm">{edu.degree}</p>
-                  <p className="text-white/40 text-xs mt-1">{edu.institution}</p>
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-accent text-xs font-mono">{edu.duration}</span>
-                    <span className="text-white/50 text-xs">{edu.result}</span>
+                  <p className="text-[var(--muted)] text-xs mt-1">{edu.institution}</p>
+                  <div className="flex flex-wrap items-center gap-3 mt-2">
+                    <span className="text-[var(--accent-hover)] text-xs font-mono font-medium">
+                      {edu.duration}
+                    </span>
+                    <span className="text-white/85 text-xs">{edu.result}</span>
                   </div>
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Stats Row */}
           {[
@@ -433,14 +480,13 @@ const AboutSection = () => {
             { num: "9.36", label: "M.Tech CGPA\nAcademic Topper" },
             { num: "03", label: "Professional\nCertifications" },
           ].map((stat, i) => (
-            <motion.div
+            <div
               key={i}
-              className="bento-card flex flex-col justify-center items-center text-center py-8"
-              {...staggerChild(0.3 + i * 0.1)}
+              className="bento-card flex flex-col justify-center items-center text-center py-8 scroll-reveal"
             >
               <div className="stat-number">{stat.num}</div>
               <div className="stat-label whitespace-pre-line">{stat.label}</div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -460,21 +506,19 @@ const SkillsSection = () => {
   return (
     <section id="skills" className="section-padding">
       <div className="container mx-auto max-w-6xl">
-        <motion.p className="section-label" {...fadeInUp}>
-          // TECH STACK
-        </motion.p>
+        <p className="section-label scroll-reveal">{"// TECH STACK"}</p>
 
-        <motion.h2 className="section-heading mb-6" {...fadeInUp}>
+        <h2 className="section-heading mb-6 scroll-reveal">
           TOOLS OF THE <span className="accent">TRADE.</span>
-        </motion.h2>
+        </h2>
 
         {/* Marquee */}
-        <div className="overflow-hidden mb-16 -mx-4 md:-mx-8">
+        <div className="overflow-hidden mb-14 -mx-4 md:-mx-8 scroll-reveal">
           <div className="marquee-track">
             {[...allSkillNames, ...allSkillNames].map((name, i) => (
               <span key={i} className="marquee-item">
                 {name}
-                <span className="text-white/10 mx-4">•</span>
+                <span className="text-[rgba(123,92,255,0.35)] mx-4">•</span>
               </span>
             ))}
           </div>
@@ -483,26 +527,21 @@ const SkillsSection = () => {
         {/* Category Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {categories.map((cat, catIdx) => (
-            <motion.div
-              key={catIdx}
-              className="bento-card"
-              {...staggerChild(catIdx * 0.1)}
-            >
-              <h3 className="font-mono text-xs uppercase tracking-wider text-white/30 mb-6">
+            <div key={catIdx} className="bento-card scroll-reveal">
+              <h3 className="font-mono text-xs uppercase tracking-wider text-[var(--muted)] mb-5">
                 {cat.title}
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2.5">
                 {cat.items.map((skill, i) => (
-                  <div
-                    key={i}
-                    className="tech-tag group"
-                  >
-                    <span className="text-base group-hover:text-accent transition-colors">{skill.icon}</span>
+                  <div key={i} className="tech-tag group">
+                    <span className="text-base text-white/90 group-hover:text-[var(--accent-hover)] transition-colors">
+                      {skill.icon}
+                    </span>
                     <span>{skill.name}</span>
                   </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -515,21 +554,17 @@ const ProjectsSection = () => {
   return (
     <section id="projects" className="section-padding">
       <div className="container mx-auto max-w-6xl">
-        <motion.p className="section-label" {...fadeInUp}>
-          // SELECTED WORK
-        </motion.p>
+        <p className="section-label scroll-reveal">{"// SELECTED WORK"}</p>
 
-        <motion.h2 className="section-heading mb-16" {...fadeInUp}>
-          PROJECTS THAT<br /><span className="accent">MAKE AN IMPACT.</span>
-        </motion.h2>
+        <h2 className="section-heading mb-14 scroll-reveal">
+          PROJECTS THAT
+          <br />
+          <span className="accent">MAKE AN IMPACT.</span>
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {projects.map((project, index) => (
-            <motion.div
-              key={index}
-              className="project-card"
-              {...staggerChild(index * 0.08)}
-            >
+            <div key={index} className="project-card scroll-reveal">
               <div className="project-num">/{project.num}</div>
               <h3 className="project-title">{project.title}</h3>
               <p className="project-desc">{project.description}</p>
@@ -537,7 +572,7 @@ const ProjectsSection = () => {
               {/* Stack Tags */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {project.stack.map((tech, i) => (
-                  <span key={i} className="tech-tag text-[11px]">
+                  <span key={i} className="tech-tag text-xs">
                     {tech}
                   </span>
                 ))}
@@ -546,20 +581,21 @@ const ProjectsSection = () => {
               {/* Metrics */}
               <div className="space-y-2 mb-5">
                 {project.metrics.map((metric, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-white/40">
-                    <div className="w-1 h-1 rounded-full bg-accent" />
-                    {metric}
+                  <div key={i} className="flex items-center gap-2 text-xs text-[var(--muted)]">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
+                    <span>{metric}</span>
                   </div>
                 ))}
               </div>
 
               {/* Links */}
-              <div className="flex gap-3 mt-auto pt-4 border-t border-white/5">
+              <div className="flex gap-3 mt-auto pt-4 border-t border-[rgba(123,92,255,0.18)]">
                 {project.github && (
                   <Link
                     href={project.github}
                     target="_blank"
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-300 text-white/60 hover:text-white text-xs"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[rgba(123,92,255,0.12)] hover:bg-[rgba(233,30,140,0.18)] border border-[rgba(123,92,255,0.3)] hover:border-[var(--accent)] transition-all duration-300 text-white text-xs font-medium"
                   >
                     <FaGithub className="text-sm" />
                     <span>GitHub</span>
@@ -569,14 +605,15 @@ const ProjectsSection = () => {
                   <Link
                     href={project.live}
                     target="_blank"
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-black transition-all duration-300 text-xs font-medium"
+                    rel="noopener noreferrer"
+                    className="pill-btn pill-btn-magenta py-2 px-4 text-xs"
                   >
                     <BsArrowUpRight className="text-sm" />
                     <span>Live</span>
                   </Link>
                 )}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -584,54 +621,42 @@ const ProjectsSection = () => {
   );
 };
 
-
-
 /* ═══ 5. EXPERIENCE ═══ */
 const ExperienceSection = () => {
   return (
     <section id="experience" className="section-padding">
       <div className="container mx-auto max-w-6xl">
-        <motion.p className="section-label" {...fadeInUp}>
-          // EXPERIENCE
-        </motion.p>
+        <p className="section-label scroll-reveal">{"// EXPERIENCE"}</p>
 
-        <motion.h2 className="section-heading mb-16" {...fadeInUp}>
+        <h2 className="section-heading mb-14 scroll-reveal">
           WHERE I&apos;VE <span className="accent">WORKED.</span>
-        </motion.h2>
+        </h2>
 
         <div className="space-y-5">
           {experience.map((exp, index) => (
-            <motion.div
-              key={index}
-              className="bento-card"
-              {...staggerChild(index * 0.1)}
-            >
+            <div key={index} className="bento-card scroll-reveal">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
                 <div>
-                  <h3 className="font-heading font-bold text-xl text-white mb-1">
-                    {exp.role}
-                  </h3>
-                  <p className="text-accent text-sm font-medium">{exp.company}</p>
+                  <h3 className="font-bold text-xl text-white mb-1">{exp.role}</h3>
+                  <p className="text-[var(--accent-hover)] text-sm font-medium">{exp.company}</p>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit">
-                  <div className="w-2 h-2 bg-accent rounded-full" />
-                  <span className="text-xs font-mono text-white/60">{exp.duration}</span>
+                <div className="status-badge w-fit">
+                  <div className="w-2 h-2 bg-[var(--accent)] rounded-full" />
+                  <span className="text-xs font-mono text-white">{exp.duration}</span>
                 </div>
               </div>
 
-              <p className="text-white/60 text-sm leading-relaxed mb-6">
-                {exp.description}
-              </p>
+              <p className="text-[var(--muted)] text-sm leading-relaxed mb-6">{exp.description}</p>
 
               {/* Key Responsibilities */}
               <div className="mb-6">
-                <h4 className="text-white/40 text-xs uppercase tracking-wider font-mono mb-3">
+                <h4 className="text-white/85 text-xs uppercase tracking-wider font-mono mb-3">
                   Key Responsibilities
                 </h4>
                 <ul className="space-y-2">
                   {exp.responsibilities.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-white/60 text-sm">
-                      <div className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
+                    <li key={i} className="flex items-start gap-3 text-[var(--muted)] text-sm">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] mt-2 flex-shrink-0" />
                       <span className="leading-relaxed">{item}</span>
                     </li>
                   ))}
@@ -640,12 +665,12 @@ const ExperienceSection = () => {
 
               {/* Tech Stack */}
               <div className="mb-6">
-                <h4 className="text-white/40 text-xs uppercase tracking-wider font-mono mb-3">
+                <h4 className="text-white/85 text-xs uppercase tracking-wider font-mono mb-3">
                   Technologies Used
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {exp.stack.map((tech, i) => (
-                    <span key={i} className="tech-tag text-[11px]">
+                    <span key={i} className="tech-tag text-xs">
                       {tech}
                     </span>
                   ))}
@@ -653,20 +678,20 @@ const ExperienceSection = () => {
               </div>
 
               {/* Key Achievements */}
-              <div className="pt-6 border-t border-white/5">
-                <h4 className="text-white/40 text-xs uppercase tracking-wider font-mono mb-3">
+              <div className="pt-6 border-t border-[rgba(123,92,255,0.18)]">
+                <h4 className="text-white/85 text-xs uppercase tracking-wider font-mono mb-3">
                   Key Achievements
                 </h4>
                 <div className="space-y-2">
                   {exp.achievements.map((achievement, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs text-white/50">
-                      <div className="w-1 h-1 rounded-full bg-green-500" />
-                      {achievement}
+                    <div key={i} className="flex items-center gap-2.5 text-xs text-[var(--muted)]">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                      <span>{achievement}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -679,88 +704,90 @@ const AwardsSection = () => {
   return (
     <section id="awards" className="section-padding">
       <div className="container mx-auto max-w-6xl">
-        <motion.p className="section-label" {...fadeInUp}>
-          // RECOGNITION
-        </motion.p>
+        <p className="section-label scroll-reveal">{"// RECOGNITION"}</p>
 
-        <motion.h2 className="section-heading mb-16" {...fadeInUp}>
+        <h2 className="section-heading mb-14 scroll-reveal">
           WINS WORTH <span className="accent">FRAMING.</span>
-        </motion.h2>
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Achievements */}
-          <motion.div className="bento-card" {...staggerChild(0.1)}>
+          <div className="bento-card scroll-reveal">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+              <div className="w-10 h-10 rounded-xl bg-[rgba(233,30,140,0.14)] border border-[rgba(233,30,140,0.3)] flex items-center justify-center text-[var(--accent-hover)]">
                 <FaTrophy />
               </div>
-              <h3 className="font-heading font-bold text-lg">Achievements</h3>
+              <h3 className="font-bold text-lg text-white">Achievements</h3>
             </div>
             <div className="space-y-5">
               {achievements.map((item, i) => (
-                <div key={i} className="border-l-2 border-accent/30 pl-4">
+                <div key={i} className="border-l-2 border-[var(--accent-2)] pl-4">
                   <p className="text-white font-medium text-sm">{item.title}</p>
-                  <p className="text-white/40 text-xs mt-2 leading-relaxed">{item.description}</p>
+                  <p className="text-[var(--muted)] text-xs mt-2 leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Certifications */}
-          <motion.div className="bento-card" {...staggerChild(0.2)}>
+          <div className="bento-card scroll-reveal">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+              <div className="w-10 h-10 rounded-xl bg-[rgba(233,30,140,0.14)] border border-[rgba(233,30,140,0.3)] flex items-center justify-center text-[var(--accent-hover)]">
                 <FaCertificate />
               </div>
-              <h3 className="font-heading font-bold text-lg">Certifications</h3>
+              <h3 className="font-bold text-lg text-white">Certifications</h3>
             </div>
             <div className="space-y-5">
               {certifications.map((cert, i) => (
-                <div key={i} className="border-l-2 border-accent/30 pl-4">
+                <div key={i} className="border-l-2 border-[var(--accent-2)] pl-4">
                   <p className="text-white font-medium text-sm">{cert.title}</p>
-                  <p className="text-white/40 text-xs mt-1">{cert.details}</p>
-                  <span className="text-accent text-xs font-mono mt-2 inline-block">{cert.date}</span>
+                  <p className="text-[var(--muted)] text-xs mt-1">{cert.details}</p>
+                  <span className="text-[var(--accent-hover)] text-xs font-mono mt-2 inline-block">
+                    {cert.date}
+                  </span>
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
   );
 };
 
-
-
-/* ═══ 8. FOOTER ═══ */
+/* ═══ 7. FOOTER ═══ */
 const FooterSection = () => {
   return (
-    <footer id="contact" className="relative overflow-hidden py-20 border-t border-white/5">
+    <footer
+      id="contact"
+      className="relative overflow-hidden py-20 px-4 md:px-8 border-t border-[rgba(123,92,255,0.2)] bg-[#0b091a]"
+    >
       <div className="container mx-auto max-w-6xl">
-        {/* Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
           {/* Get in Touch */}
           <div>
-            <h3 className="font-heading font-bold text-lg mb-4">
-              Get in Touch<span className="text-accent">.</span>
+            <h3 className="font-bold text-lg text-white mb-4">
+              Get in Touch<span className="text-[var(--accent)]">.</span>
             </h3>
             <div className="space-y-3">
-              <a 
-                href="tel:+918485833673" 
-                className="flex items-center gap-2 text-white/60 hover:text-accent transition-colors text-sm"
+              <a
+                href="tel:+918485833673"
+                className="flex items-center gap-2.5 text-[var(--muted)] hover:text-[var(--accent-hover)] transition-colors text-sm"
               >
-                <FaPhoneAlt className="text-xs" />
+                <FaPhoneAlt className="text-xs text-[var(--accent-2)]" />
                 <span>+91 84858 33673</span>
               </a>
-              <a 
-                href="mailto:pawartushar8485@gmail.com" 
-                className="flex items-center gap-2 text-white/60 hover:text-accent transition-colors text-sm"
+              <a
+                href="mailto:pawartushar8485@gmail.com"
+                className="flex items-center gap-2.5 text-[var(--muted)] hover:text-[var(--accent-hover)] transition-colors text-sm"
               >
-                <FaEnvelope className="text-xs" />
+                <FaEnvelope className="text-xs text-[var(--accent-2)]" />
                 <span>pawartushar8485@gmail.com</span>
               </a>
-              <div className="flex items-center gap-2 text-white/60 text-sm">
-                <FaMapMarkerAlt className="text-xs" />
+              <div className="flex items-center gap-2.5 text-[var(--muted)] text-sm">
+                <FaMapMarkerAlt className="text-xs text-[var(--accent-2)]" />
                 <span>Pune, Maharashtra - 411007</span>
               </div>
             </div>
@@ -768,33 +795,58 @@ const FooterSection = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-heading font-bold text-lg mb-4">
-              Quick Links<span className="text-accent">.</span>
+            <h3 className="font-bold text-lg text-white mb-4">
+              Quick Links<span className="text-[var(--accent)]">.</span>
             </h3>
             <div className="space-y-2">
-              <a href="#about" className="block text-white/60 hover:text-accent transition-colors text-sm">About</a>
-              <a href="#skills" className="block text-white/60 hover:text-accent transition-colors text-sm">Skills</a>
-              <a href="#projects" className="block text-white/60 hover:text-accent transition-colors text-sm">Projects</a>
-              <a href="#experience" className="block text-white/60 hover:text-accent transition-colors text-sm">Experience</a>
-              <a href="#awards" className="block text-white/60 hover:text-accent transition-colors text-sm">Awards</a>
+              <a
+                href="#about"
+                className="block text-[var(--muted)] hover:text-[var(--accent-hover)] transition-colors text-sm"
+              >
+                About
+              </a>
+              <a
+                href="#skills"
+                className="block text-[var(--muted)] hover:text-[var(--accent-hover)] transition-colors text-sm"
+              >
+                Skills
+              </a>
+              <a
+                href="#projects"
+                className="block text-[var(--muted)] hover:text-[var(--accent-hover)] transition-colors text-sm"
+              >
+                Projects
+              </a>
+              <a
+                href="#experience"
+                className="block text-[var(--muted)] hover:text-[var(--accent-hover)] transition-colors text-sm"
+              >
+                Experience
+              </a>
+              <a
+                href="#awards"
+                className="block text-[var(--muted)] hover:text-[var(--accent-hover)] transition-colors text-sm"
+              >
+                Awards
+              </a>
             </div>
           </div>
 
           {/* Connect */}
           <div>
-            <h3 className="font-heading font-bold text-lg mb-4">
-              Connect<span className="text-accent">.</span>
+            <h3 className="font-bold text-lg text-white mb-4">
+              Connect<span className="text-[var(--accent)]">.</span>
             </h3>
             <Social />
           </div>
         </div>
 
         {/* Copyright */}
-        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="font-heading font-bold text-xl text-white">
-            Tushar Pawar<span className="text-accent">.</span>
+        <div className="pt-6 border-t border-[rgba(123,92,255,0.18)] flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="font-bold text-xl text-white">
+            Tushar Pawar<span className="text-[var(--accent)]">.</span>
           </p>
-          <p className="text-white/30 text-xs">
+          <p className="text-[var(--muted)] text-xs">
             © {new Date().getFullYear()} All rights reserved.
           </p>
         </div>
@@ -805,21 +857,45 @@ const FooterSection = () => {
 
 /* ════════════════ PAGE ════════════════ */
 export default function Home() {
-  // Bento card mouse spotlight effect
+  // Bento card 3D tilt + mouse spotlight effect
   useEffect(() => {
-    const cards = document.querySelectorAll('.bento-card');
-    const handleMouseMove = (e) => {
-      cards.forEach((card) => {
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const pointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    if (motionQuery.matches || !pointerQuery.matches) return;
+
+    const cards = Array.from(document.querySelectorAll(".bento-card"));
+    const cleanups = [];
+
+    cards.forEach((card) => {
+      const handleMove = (e) => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        card.style.setProperty('--mouse-x', `${x}px`);
-        card.style.setProperty('--mouse-y', `${y}px`);
-      });
-    };
+        card.style.setProperty("--mouse-x", `${x}px`);
+        card.style.setProperty("--mouse-y", `${y}px`);
 
-    document.addEventListener('mousemove', handleMouseMove);
-    return () => document.removeEventListener('mousemove', handleMouseMove);
+        const rotateY = ((x / rect.width) - 0.5) * 6;
+        const rotateX = -((y / rect.height) - 0.5) * 6;
+        card.style.setProperty("--tilt-x", `${rotateX.toFixed(2)}deg`);
+        card.style.setProperty("--tilt-y", `${rotateY.toFixed(2)}deg`);
+      };
+
+      const handleLeave = () => {
+        card.style.setProperty("--tilt-x", "0deg");
+        card.style.setProperty("--tilt-y", "0deg");
+      };
+
+      card.addEventListener("mousemove", handleMove);
+      card.addEventListener("mouseleave", handleLeave);
+      cleanups.push(() => {
+        card.removeEventListener("mousemove", handleMove);
+        card.removeEventListener("mouseleave", handleLeave);
+      });
+    });
+
+    return () => {
+      cleanups.forEach((fn) => fn());
+    };
   }, []);
 
   return (
