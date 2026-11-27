@@ -31,7 +31,7 @@ const Header = () => {
           <span className="text-xl xl:text-2xl font-bold tracking-tight text-[var(--header-text)]">
             TP<span className="text-[var(--accent)]">.</span>
           </span>
-          <div className="hidden sm:flex flex-col border-l border-[#0d0b1e]/20 pl-3 gap-0.5 leading-none">
+          <div className="hidden sm:flex flex-col border-l border-[#04142c]/25 pl-3 gap-0.5 leading-none">
             <span className="text-[10px] font-semibold tracking-wider text-[var(--header-text)] uppercase">
               Beyond Visuals
             </span>
@@ -49,7 +49,7 @@ const Header = () => {
         {/* Far-right badge / CTA */}
         <div className="hidden lg:flex items-center gap-3 shrink-0">
           <span
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#0d0b1e]/20 bg-white/60 text-[var(--header-text)] text-xs font-semibold tracking-wide"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#04142c]/25 bg-white/70 text-[var(--header-text)] text-xs font-semibold tracking-wide"
             aria-label="Portfolio role badge"
           >
             <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />

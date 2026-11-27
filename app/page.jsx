@@ -295,20 +295,24 @@ const HeroSection = () => {
     <section
       id="hero"
       ref={heroRef}
-      className="relative overflow-hidden min-h-[calc(100vh-76px)] pt-14 md:pt-20 pb-0 flex flex-col justify-between border-b border-[rgba(123,92,255,0.18)]"
+      className="relative overflow-hidden min-h-[calc(100vh-76px)] pt-14 md:pt-20 pb-0 flex flex-col justify-between border-b border-[rgba(78,134,235,0.24)]"
     >
-      {/* Ambient radial glows behind hero image and corners */}
+      {/* Ambient radial glows: rich dark Prussian blue + magenta highlight behind cutout */}
       <div
         aria-hidden="true"
-        className="ambient-glow -top-32 -left-32 w-[460px] h-[460px] bg-[#7b5cff]"
+        className="ambient-glow -top-32 -left-32 w-[520px] h-[520px] bg-[#1453ad]"
       />
       <div
         aria-hidden="true"
-        className="ambient-glow bottom-0 right-4 lg:right-16 w-[440px] h-[440px] bg-[#e91e8c]"
+        className="ambient-glow top-1/4 left-1/3 w-[420px] h-[420px] bg-[#0d3b82]"
       />
       <div
         aria-hidden="true"
-        className="ambient-glow bottom-16 right-28 lg:right-48 w-[360px] h-[360px] bg-[#7b5cff]"
+        className="ambient-glow bottom-0 right-4 lg:right-16 w-[420px] h-[420px] bg-[#e91e8c]"
+      />
+      <div
+        aria-hidden="true"
+        className="ambient-glow bottom-16 right-28 lg:right-48 w-[420px] h-[420px] bg-[#1d63c8]"
       />
 
       <div className="container mx-auto px-4 md:px-6 relative z-20 flex-1 flex flex-col justify-between">
@@ -518,7 +522,7 @@ const SkillsSection = () => {
             {[...allSkillNames, ...allSkillNames].map((name, i) => (
               <span key={i} className="marquee-item">
                 {name}
-                <span className="text-[rgba(123,92,255,0.35)] mx-4">•</span>
+                <span className="text-[rgba(78,134,235,0.4)] mx-4">•</span>
               </span>
             ))}
           </div>
@@ -589,13 +593,13 @@ const ProjectsSection = () => {
               </div>
 
               {/* Links */}
-              <div className="flex gap-3 mt-auto pt-4 border-t border-[rgba(123,92,255,0.18)]">
+              <div className="flex gap-3 mt-auto pt-4 border-t border-[rgba(78,134,235,0.22)]">
                 {project.github && (
                   <Link
                     href={project.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[rgba(123,92,255,0.12)] hover:bg-[rgba(233,30,140,0.18)] border border-[rgba(123,92,255,0.3)] hover:border-[var(--accent)] transition-all duration-300 text-white text-xs font-medium"
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-[rgba(29,99,200,0.18)] hover:bg-[rgba(233,30,140,0.2)] border border-[rgba(78,134,235,0.36)] hover:border-[var(--accent)] transition-all duration-300 text-white text-xs font-medium"
                   >
                     <FaGithub className="text-sm" />
                     <span>GitHub</span>
@@ -678,7 +682,7 @@ const ExperienceSection = () => {
               </div>
 
               {/* Key Achievements */}
-              <div className="pt-6 border-t border-[rgba(123,92,255,0.18)]">
+              <div className="pt-6 border-t border-[rgba(78,134,235,0.22)]">
                 <h4 className="text-white/85 text-xs uppercase tracking-wider font-mono mb-3">
                   Key Achievements
                 </h4>
@@ -762,7 +766,7 @@ const FooterSection = () => {
   return (
     <footer
       id="contact"
-      className="relative overflow-hidden py-20 px-4 md:px-8 border-t border-[rgba(123,92,255,0.2)] bg-[#0b091a]"
+      className="relative overflow-hidden py-20 px-4 md:px-8 border-t border-[rgba(78,134,235,0.26)] bg-[#020c1d]"
     >
       <div className="container mx-auto max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
@@ -842,7 +846,7 @@ const FooterSection = () => {
         </div>
 
         {/* Copyright */}
-        <div className="pt-6 border-t border-[rgba(123,92,255,0.18)] flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="pt-6 border-t border-[rgba(78,134,235,0.22)] flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="font-bold text-xl text-white">
             Tushar Pawar<span className="text-[var(--accent)]">.</span>
           </p>

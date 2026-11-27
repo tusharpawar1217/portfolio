@@ -29,20 +29,22 @@ export default function RootLayout({ children }) {
           Skip to main content
         </a>
 
-        {/* Bottom-left ambient purple glow */}
+        {/* Bottom-left ambient Prussian blue glow */}
         <div
           aria-hidden="true"
-          className="ambient-glow fixed -bottom-44 -left-44 w-[520px] h-[520px] bg-[#7b5cff] z-0"
+          className="ambient-glow fixed -bottom-44 -left-44 w-[580px] h-[580px] bg-[#1453ad] z-0"
         />
 
         <SplashCursor
           SIM_RESOLUTION={128}
-          DYE_RESOLUTION={1024}
-          DENSITY_DISSIPATION={2.5}
-          VELOCITY_DISSIPATION={2}
-          CURL={4}
-          SPLAT_RADIUS={0.2}
-          SPLAT_FORCE={6000}
+          DYE_RESOLUTION={1440}
+          DENSITY_DISSIPATION={1.2}
+          VELOCITY_DISSIPATION={0.8}
+          PRESSURE={0.8}
+          CURL={25}
+          SPLAT_RADIUS={0.25}
+          SPLAT_FORCE={4500}
+          COLOR_UPDATE_SPEED={6}
         />
         <ScrollReveal />
         <Header />

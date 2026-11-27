@@ -33,7 +33,7 @@ const MobileNav = () => {
       >
         <CiMenuFries className="text-[28px]" />
       </SheetTrigger>
-      <SheetContent className="flex flex-col bg-[#0d0b1e] border-l border-[rgba(123,92,255,0.28)]">
+      <SheetContent className="flex flex-col bg-[#04142c] border-l border-[rgba(78,134,235,0.32)]">
         <div className="mt-16 mb-12 text-center">
           <a href="#hero" onClick={(e) => handleClick(e, "#hero")}>
             <span className="text-2xl font-bold text-white">

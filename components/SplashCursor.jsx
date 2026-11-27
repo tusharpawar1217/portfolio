@@ -2,43 +2,34 @@
 
 import { useEffect, useRef } from "react";
 
-function HSVtoRGB(h, s, v) {
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  const i = Math.floor(h * 6);
-  const f = h * 6 - i;
-  const p = v * (1 - s);
-  const q = v * (1 - f * s);
-  const t = v * (1 - (1 - f) * s);
-
-  switch (i % 6) {
-    case 0: r = v; g = t; b = p; break;
-    case 1: r = q; g = v; b = p; break;
-    case 2: r = p; g = v; b = t; break;
-    case 3: r = p; g = q; b = v; break;
-    case 4: r = t; g = p; b = v; break;
-    case 5: r = v; g = p; b = q; break;
-  }
-  return { r, g, b };
-}
+// Jellyfish-fire color palette
+const PALETTE = [
+  [1.0, 0.78, 0.25],  // gold
+  [1.0, 0.78, 0.25],  // gold (weighted)
+  [1.0, 0.45, 0.12],  // fire orange
+  [1.0, 0.45, 0.12],  // fire orange (weighted)
+  [1.0, 0.30, 0.45],  // hot coral-pink
+  [0.75, 0.35, 1.0],  // jellyfish violet
+  [0.25, 0.85, 1.0],  // glowing cyan
+  [1.0, 0.92, 0.75],  // pale cream-white (hot core)
+];
 
 function generateColor() {
-  const c = HSVtoRGB(0.04 + Math.random() * 0.1, 1.0, 1.0);
-  c.r *= 0.15;
-  c.g *= 0.15;
-  c.b *= 0.15;
-  return c;
+  const [r, g, b] = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+  const k = 0.18; // brightness control
+  return { r: r * k, g: g * k, b: b * k };
 }
 
 export default function SplashCursor({
   SIM_RESOLUTION = 128,
   DYE_RESOLUTION = 1024,
-  DENSITY_DISSIPATION = 2.5,
-  VELOCITY_DISSIPATION = 2,
-  CURL = 4,
-  SPLAT_RADIUS = 0.2,
-  SPLAT_FORCE = 6000,
+  DENSITY_DISSIPATION = 1.2,
+  VELOCITY_DISSIPATION = 0.8,
+  PRESSURE = 0.8,
+  CURL = 25,
+  SPLAT_RADIUS = 0.25,
+  SPLAT_FORCE = 4500,
+  COLOR_UPDATE_SPEED = 6,
 }) {
   const canvasRef = useRef(null);
 
@@ -192,7 +183,13 @@ export default function SplashCursor({
   return (
     <canvas
       ref={canvasRef}
+      data-fluid-cursor
       aria-hidden="true"
+      style={{
+        mixBlendMode: "screen",
+        filter: "saturate(1.25) blur(0.6px)",
+        opacity: 0.85,
+      }}
       className="fixed inset-0 w-full h-full pointer-events-none z-40"
     />
   );

@@ -45,7 +45,7 @@ const Social = ({ containerStyles, iconStyles }) => {
           href={item.path}
           className={
             iconStyles ||
-            "w-10 h-10 rounded-full border border-[rgba(123,92,255,0.35)] bg-[#15122b]/80 flex items-center justify-center text-[var(--muted)] hover:text-white hover:border-[var(--accent)] hover:bg-[rgba(233,30,140,0.18)] hover:shadow-[0_0_18px_rgba(233,30,140,0.45)] transition-all duration-300 text-sm"
+            "w-10 h-10 rounded-full border border-[rgba(78,134,235,0.4)] bg-[#092246]/85 flex items-center justify-center text-[var(--muted)] hover:text-white hover:border-[var(--accent)] hover:bg-[rgba(233,30,140,0.2)] hover:shadow-[0_0_18px_rgba(233,30,140,0.45)] transition-all duration-300 text-sm"
           }
           target="_blank"
           rel="noopener noreferrer"
