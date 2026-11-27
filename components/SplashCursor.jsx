@@ -16,7 +16,7 @@ const PALETTE = [
 
 function generateColor() {
   const [r, g, b] = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-  const k = 0.18; // brightness control
+  const k = 0.35; // increased brightness for more visibility
   return { r: r * k, g: g * k, b: b * k };
 }
 
@@ -83,7 +83,7 @@ export default function SplashCursor({
         vx: dx * 0.14 + (Math.random() - 0.5) * 0.4,
         vy: dy * 0.14 + (Math.random() - 0.5) * 0.4,
         radius: baseRadius * (0.75 + Math.random() * 0.45),
-        alpha: 0.72 * forceScale,
+        alpha: 0.95 * forceScale, // increased alpha for darker, more visible trails
         spin: (Math.random() - 0.5) * 0.04 * CURL,
         r: Math.round(color.r * 255),
         g: Math.round(color.g * 255),
@@ -123,8 +123,8 @@ export default function SplashCursor({
       ctx.clearRect(0, 0, width, height);
       ctx.globalCompositeOperation = "lighter";
 
-      const velDecay = Math.exp(-VELOCITY_DISSIPATION * dt * 1.4);
-      const densityDecay = Math.exp(-DENSITY_DISSIPATION * dt * 1.2);
+      const velDecay = Math.exp(-VELOCITY_DISSIPATION * dt * 1.1);
+      const densityDecay = Math.exp(-DENSITY_DISSIPATION * dt * 0.85);
 
       for (let i = puffs.length - 1; i >= 0; i--) {
         const p = puffs[i];
@@ -149,7 +149,8 @@ export default function SplashCursor({
 
         const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
         grad.addColorStop(0, `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha})`);
-        grad.addColorStop(0.45, `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha * 0.45})`);
+        grad.addColorStop(0.35, `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha * 0.65})`);
+        grad.addColorStop(0.7, `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha * 0.25})`);
         grad.addColorStop(1, `rgba(${p.r}, ${p.g}, ${p.b}, 0)`);
 
         ctx.fillStyle = grad;
@@ -187,8 +188,8 @@ export default function SplashCursor({
       aria-hidden="true"
       style={{
         mixBlendMode: "screen",
-        filter: "saturate(1.25) blur(0.6px)",
-        opacity: 0.85,
+        filter: "saturate(1.5) blur(0.8px) brightness(1.2)",
+        opacity: 1,
       }}
       className="fixed inset-0 w-full h-full pointer-events-none z-40"
     />
