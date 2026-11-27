@@ -38,13 +38,13 @@ export default function RootLayout({ children }) {
         <SplashCursor
           SIM_RESOLUTION={128}
           DYE_RESOLUTION={1600}
-          DENSITY_DISSIPATION={0.98}
-          VELOCITY_DISSIPATION={0.65}
+          DENSITY_DISSIPATION={0.75}
+          VELOCITY_DISSIPATION={0.5}
           PRESSURE={0.75}
-          CURL={30}
-          SPLAT_RADIUS={0.28}
-          SPLAT_FORCE={5500}
-          COLOR_UPDATE_SPEED={8}
+          CURL={35}
+          SPLAT_RADIUS={0.32}
+          SPLAT_FORCE={6500}
+          COLOR_UPDATE_SPEED={10}
         />
         <ScrollReveal />
         <Header />
