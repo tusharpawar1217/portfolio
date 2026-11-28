@@ -1,185 +1,189 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-// Jellyfish-fire color palette
-const PALETTE = [
-  [1.0, 0.78, 0.25],  // gold
-  [1.0, 0.78, 0.25],  // gold (weighted)
-  [1.0, 0.45, 0.12],  // fire orange
-  [1.0, 0.45, 0.12],  // fire orange (weighted)
-  [1.0, 0.30, 0.45],  // hot coral-pink
-  [0.75, 0.35, 1.0],  // jellyfish violet
-  [0.25, 0.85, 1.0],  // glowing cyan
-  [1.0, 0.92, 0.75],  // pale cream-white (hot core)
+// Subtle smoky fire color stops (kept dim so additive WebGL dye never washes out text)
+const FIRE_COLORS = [
+  { r: 0.16, g: 0.065, b: 0.008 }, // smoky flame orange
+  { r: 0.18, g: 0.105, b: 0.012 }, // warm amber gold
+  { r: 0.15, g: 0.042, b: 0.008 }, // deep ember orange
+  { r: 0.13, g: 0.025, b: 0.014 }, // subtle crimson spark
 ];
 
-function generateColor() {
-  const [r, g, b] = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-  const k = 0.75; // massively increased brightness for full visibility
-  return { r: r * k, g: g * k, b: b * k };
+function lerp(a, b, t) {
+  return a + (b - a) * t;
 }
 
 export default function SplashCursor({
   SIM_RESOLUTION = 128,
   DYE_RESOLUTION = 1024,
-  DENSITY_DISSIPATION = 1.2,
-  VELOCITY_DISSIPATION = 0.8,
+  DENSITY_DISSIPATION = 1.45,
+  VELOCITY_DISSIPATION = 0.55,
   PRESSURE = 0.8,
-  CURL = 25,
-  SPLAT_RADIUS = 0.25,
-  SPLAT_FORCE = 4500,
-  COLOR_UPDATE_SPEED = 6,
+  CURL = 24,
+  SPLAT_RADIUS = 0.16,
+  SPLAT_FORCE = 4800,
+  COLOR_UPDATE_SPEED = 10,
 }) {
   const canvasRef = useRef(null);
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const pointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
 
-    if (motionQuery.matches || !pointerQuery.matches) {
-      return;
-    }
+    const updateEnabled = () => {
+      setEnabled(!motionQuery.matches && pointerQuery.matches);
+    };
+    updateEnabled();
+
+    motionQuery.addEventListener("change", updateEnabled);
+    pointerQuery.addEventListener("change", updateEnabled);
+
+    return () => {
+      motionQuery.removeEventListener("change", updateEnabled);
+      pointerQuery.removeEventListener("change", updateEnabled);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
 
-    const effectiveScale =
-      navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4
-        ? Math.min(DYE_RESOLUTION, 512) / 1024
-        : Math.min(DYE_RESOLUTION, 1024) / 1024;
+    let cancelled = false;
+    let colorTimer = null;
+    let introTimer = null;
+    let introRaf = null;
 
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-    const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5) * effectiveScale;
-      canvas.width = Math.max(SIM_RESOLUTION, Math.floor(width * dpr));
-      canvas.height = Math.max(SIM_RESOLUTION, Math.floor(height * dpr));
-      ctx.setTransform(canvas.width / width, 0, 0, canvas.height / height, 0, 0);
+    const splatColor = { ...FIRE_COLORS[0] };
+    let colorPhase = 0;
+
+    const advanceFireColor = (step = 0.08) => {
+      colorPhase = (colorPhase + step) % FIRE_COLORS.length;
+      const i0 = Math.floor(colorPhase);
+      const i1 = (i0 + 1) % FIRE_COLORS.length;
+      const frac = colorPhase - i0;
+      const c0 = FIRE_COLORS[i0];
+      const c1 = FIRE_COLORS[i1];
+      splatColor.r = lerp(c0.r, c1.r, frac);
+      splatColor.g = lerp(c0.g, c1.g, frac);
+      splatColor.b = lerp(c0.b, c1.b, frac);
     };
 
-    resize();
-    window.addEventListener("resize", resize);
+    const effectiveDyeRes =
+      navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4
+        ? Math.min(DYE_RESOLUTION, 512)
+        : Math.min(DYE_RESOLUTION, 1024);
 
-    const puffs = [];
-    let lastX = null;
-    let lastY = null;
-    let lastTime = performance.now();
-    let rafId = null;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    const spawnSplat = (x, y, dx, dy) => {
-      const color = generateColor();
-      const speed = Math.hypot(dx, dy);
-      const forceScale = Math.min(1.6, Math.max(0.35, (speed * SPLAT_FORCE) / 180000));
-      const baseRadius = Math.max(36, Math.min(width, height) * SPLAT_RADIUS * 0.42);
+    const dispatchCanvasEvent = (type, x, y) => {
+      const evt = new MouseEvent(type, {
+        clientX: x,
+        clientY: y,
+        bubbles: false,
+        cancelable: false,
+      });
+      Object.defineProperty(evt, "offsetX", { value: x });
+      Object.defineProperty(evt, "offsetY", { value: y });
+      canvas.dispatchEvent(evt);
+    };
 
-      puffs.push({
-        x,
-        y,
-        vx: dx * 0.14 + (Math.random() - 0.5) * 0.4,
-        vy: dy * 0.14 + (Math.random() - 0.5) * 0.4,
-        radius: baseRadius * (0.75 + Math.random() * 0.45),
-        alpha: 1.0, // maximum alpha for full visibility
-        spin: (Math.random() - 0.5) * 0.04 * CURL,
-        r: Math.round(color.r * 255),
-        g: Math.round(color.g * 255),
-        b: Math.round(color.b * 255),
+    const handleMouseMove = (e) => {
+      advanceFireColor(0.08);
+      dispatchCanvasEvent("mousemove", e.clientX, e.clientY);
+    };
+
+    const handleMouseDown = (e) => {
+      advanceFireColor(0.4);
+      dispatchCanvasEvent("mousedown", e.clientX, e.clientY);
+    };
+
+    import("webgl-fluid").then((mod) => {
+      if (cancelled || !canvas) return;
+      const WebGLFluid = mod.default || mod;
+
+      WebGLFluid(canvas, {
+        TRIGGER: "hover",
+        IMMEDIATE: false,
+        AUTO: false,
+        SIM_RESOLUTION,
+        DYE_RESOLUTION: effectiveDyeRes,
+        DENSITY_DISSIPATION,
+        VELOCITY_DISSIPATION,
+        PRESSURE,
+        PRESSURE_ITERATIONS: 20,
+        CURL,
+        SPLAT_RADIUS,
+        SPLAT_FORCE,
+        SPLAT_COLOR: splatColor,
+        SHADING: true,
+        COLORFUL: true,
+        COLOR_UPDATE_SPEED,
+        PAUSED: false,
+        TRANSPARENT: true,
+        BLOOM: true,
+        BLOOM_ITERATIONS: 6,
+        BLOOM_RESOLUTION: 256,
+        BLOOM_INTENSITY: 0.28,
+        BLOOM_THRESHOLD: 0.55,
+        BLOOM_SOFT_KNEE: 0.7,
+        SUNRAYS: false,
       });
 
-      if (puffs.length > 80) {
-        puffs.shift();
-      }
-    };
+      window.addEventListener("mousemove", handleMouseMove, { passive: true });
+      window.addEventListener("mousedown", handleMouseDown, { passive: true });
+      colorTimer = setInterval(() => advanceFireColor(0.12), 110);
 
-    const handlePointerMove = (e) => {
-      const x = e.clientX;
-      const y = e.clientY;
-      if (lastX !== null && lastY !== null) {
-        const dx = x - lastX;
-        const dy = y - lastY;
-        if (Math.hypot(dx, dy) > 2) {
-          spawnSplat(x, y, dx, dy);
-        }
-      }
-      lastX = x;
-      lastY = y;
-    };
+      // Faint opening smoky curl between headline and portrait (like Tata Crucible)
+      introTimer = setTimeout(() => {
+        if (cancelled) return;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const startX = w * 0.56;
+        const startY = h * 0.62;
+        let frame = 0;
+        const totalFrames = 16;
 
-    const handlePointerDown = (e) => {
-      spawnSplat(e.clientX, e.clientY, (Math.random() - 0.5) * 24, (Math.random() - 0.5) * 24);
-    };
-
-    window.addEventListener("mousemove", handlePointerMove, { passive: true });
-    window.addEventListener("mousedown", handlePointerDown, { passive: true });
-
-    const tick = (now) => {
-      const dt = Math.min(0.05, (now - lastTime) / 1000);
-      lastTime = now;
-
-      ctx.clearRect(0, 0, width, height);
-      ctx.globalCompositeOperation = "lighter";
-
-      const velDecay = Math.exp(-VELOCITY_DISSIPATION * dt * 0.9);
-      const densityDecay = Math.exp(-DENSITY_DISSIPATION * dt * 0.6);
-
-      for (let i = puffs.length - 1; i >= 0; i--) {
-        const p = puffs[i];
-
-        // Apply subtle curl rotation to velocity
-        const cos = Math.cos(p.spin * dt * 8);
-        const sin = Math.sin(p.spin * dt * 8);
-        const nvx = p.vx * cos - p.vy * sin;
-        const nvy = p.vx * sin + p.vy * cos;
-
-        p.vx = nvx * velDecay;
-        p.vy = nvy * velDecay;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.radius += 22 * dt;
-        p.alpha *= densityDecay;
-
-        if (p.alpha < 0.015) {
-          puffs.splice(i, 1);
-          continue;
-        }
-
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
-        grad.addColorStop(0, `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha})`);
-        grad.addColorStop(0.3, `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha * 0.8})`);
-        grad.addColorStop(0.6, `rgba(${p.r}, ${p.g}, ${p.b}, ${p.alpha * 0.5})`);
-        grad.addColorStop(1, `rgba(${p.r}, ${p.g}, ${p.b}, 0)`);
-
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      rafId = requestAnimationFrame(tick);
-    };
-
-    rafId = requestAnimationFrame(tick);
-
-    const handleMotionChange = (e) => {
-      if (e.matches && rafId) {
-        cancelAnimationFrame(rafId);
-        ctx.clearRect(0, 0, width, height);
-      }
-    };
-    motionQuery.addEventListener("change", handleMotionChange);
+        const sweep = () => {
+          if (cancelled || frame > totalFrames) return;
+          const t = frame / totalFrames;
+          const x = startX + Math.sin(t * Math.PI * 1.4) * (w * 0.035);
+          const y = startY - t * (h * 0.15);
+          advanceFireColor(0.14);
+          dispatchCanvasEvent("mousemove", x, y);
+          frame += 1;
+          introRaf = requestAnimationFrame(sweep);
+        };
+        introRaf = requestAnimationFrame(sweep);
+      }, 650);
+    });
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("mousemove", handlePointerMove);
-      window.removeEventListener("mousedown", handlePointerDown);
-      motionQuery.removeEventListener("change", handleMotionChange);
+      cancelled = true;
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousedown", handleMouseDown);
+      if (colorTimer) clearInterval(colorTimer);
+      if (introTimer) clearTimeout(introTimer);
+      if (introRaf) cancelAnimationFrame(introRaf);
     };
-  }, [SIM_RESOLUTION, DYE_RESOLUTION, DENSITY_DISSIPATION, VELOCITY_DISSIPATION, CURL, SPLAT_RADIUS, SPLAT_FORCE]);
+  }, [
+    enabled,
+    SIM_RESOLUTION,
+    DYE_RESOLUTION,
+    DENSITY_DISSIPATION,
+    VELOCITY_DISSIPATION,
+    PRESSURE,
+    CURL,
+    SPLAT_RADIUS,
+    SPLAT_FORCE,
+    COLOR_UPDATE_SPEED,
+  ]);
+
+  if (!enabled) return null;
 
   return (
     <canvas
@@ -187,11 +191,10 @@ export default function SplashCursor({
       data-fluid-cursor
       aria-hidden="true"
       style={{
-        mixBlendMode: "normal",
-        filter: "saturate(1.8) brightness(1.5)",
-        opacity: 1,
+        mixBlendMode: "screen",
+        opacity: 0.85,
       }}
-      className="fixed inset-0 w-full h-full pointer-events-none z-40"
+      className="fixed inset-0 w-full h-full pointer-events-none z-[5]"
     />
   );
 }

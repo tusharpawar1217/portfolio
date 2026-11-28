@@ -295,33 +295,25 @@ const HeroSection = () => {
     <section
       id="hero"
       ref={heroRef}
-      className="relative overflow-hidden min-h-[calc(100vh-76px)] pt-14 md:pt-20 pb-0 flex flex-col justify-between border-b border-[rgba(78,134,235,0.24)]"
+      className="relative overflow-hidden min-h-[calc(100vh-68px)] pt-8 md:pt-12 pb-0 flex flex-col justify-between border-b border-[rgba(78,134,235,0.24)]"
     >
-      {/* Ambient radial glows: rich dark Prussian blue + magenta highlight behind cutout */}
+      {/* Subtle Prussian studio glows (kept clear of headline text for sharp contrast) */}
       <div
         aria-hidden="true"
-        className="ambient-glow -top-32 -left-32 w-[520px] h-[520px] bg-[#1453ad]"
+        className="ambient-glow bottom-6 right-6 lg:right-20 w-[420px] h-[420px] bg-[#1453ad] opacity-25"
       />
       <div
         aria-hidden="true"
-        className="ambient-glow top-1/4 left-1/3 w-[420px] h-[420px] bg-[#0d3b82]"
-      />
-      <div
-        aria-hidden="true"
-        className="ambient-glow bottom-0 right-4 lg:right-16 w-[420px] h-[420px] bg-[#e91e8c]"
-      />
-      <div
-        aria-hidden="true"
-        className="ambient-glow bottom-16 right-28 lg:right-48 w-[420px] h-[420px] bg-[#1d63c8]"
+        className="ambient-glow bottom-0 right-16 lg:right-36 w-[320px] h-[320px] bg-[#e91e8c] opacity-15"
       />
 
       <div className="container mx-auto px-4 md:px-6 relative z-20 flex-1 flex flex-col justify-between">
         {/* Main Hero Content Grid */}
-        <div className="relative flex-1 flex flex-col lg:flex-row lg:items-center pt-4 pb-8 lg:pb-12">
+        <div className="relative flex-1 flex flex-col lg:flex-row lg:items-center pt-2 pb-4 lg:pb-6">
           {/* Left Half: Text, Badge, CTAs */}
-          <div className="w-full lg:w-[60%] xl:w-[58%] text-left relative z-20">
+          <div className="w-full lg:w-[62%] xl:w-[60%] text-left relative z-20">
             {/* Two-Tone Hero Headline */}
-            <h1 className="hero-headline mb-6">
+            <h1 className="hero-headline mb-4">
               <span className="block text-white hero-line-1">
                 Hi, I&apos;m Tushar Pawar
               </span>
@@ -330,20 +322,23 @@ const HeroSection = () => {
               </span>
             </h1>
 
-            {/* Outlined Pill / Badge Row */}
-            <div className="flex flex-wrap items-center gap-3 mb-6 hero-stagger-3">
+            {/* Outlined Pill / Badge Row (Tata Crucible broadcast-pill style) */}
+            <div className="flex flex-wrap items-center gap-3 mb-4 hero-stagger-3">
               <span className="text-sm md:text-base font-medium text-[var(--muted)]">
-                Beyond visuals, built with vision
+                Open for
               </span>
-              <div className="status-badge">
-                <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse-green" />
+              <span className="text-sm md:text-base font-extrabold tracking-wide text-white uppercase">
+                AI/ML &amp; Full-Stack
+              </span>
+              <div className="status-badge py-1.5 px-3.5 text-xs md:text-sm">
+                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse-green" />
                 <span>Open to Work</span>
-                <span className="text-[var(--muted)] text-xs">• Pune, India</span>
+                <span className="text-[var(--muted)] text-xs">• Pune</span>
               </div>
             </div>
 
             {/* Subtitle */}
-            <p className="text-base md:text-lg text-[var(--muted)] max-w-xl mb-8 leading-relaxed hero-stagger-3">
+            <p className="text-sm md:text-base text-[var(--muted)] max-w-xl mb-6 leading-relaxed hero-stagger-3">
               Building intelligent systems,{" "}
               <span className="text-white font-medium">
                 data pipelines, and full-stack applications
@@ -351,12 +346,12 @@ const HeroSection = () => {
               with precision, innovation and impact.
             </p>
 
-            {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4 mb-8 hero-stagger-4">
-              <a href="#contact" className="pill-btn pill-btn-magenta">
+            {/* CTAs + Social */}
+            <div className="flex flex-wrap items-center gap-4 mb-5 hero-stagger-4">
+              <a href="#contact" className="pill-btn pill-btn-magenta py-2.5 px-6 text-sm">
                 Hire Me <BsArrowUpRight className="text-sm" />
               </a>
-              <a href="#about" className="pill-btn pill-btn-outline">
+              <a href="#about" className="pill-btn pill-btn-outline py-2.5 px-6 text-sm">
                 Explore <FaArrowDown className="text-xs" />
               </a>
             </div>
@@ -368,13 +363,13 @@ const HeroSection = () => {
           </div>
 
           {/* Right Half (Mobile/Tablet inline fallback) */}
-          <div className="mt-10 lg:mt-0 lg:hidden flex justify-center relative z-10">
+          <div className="mt-8 lg:mt-0 lg:hidden flex justify-center relative z-10">
             <div className="hero-image-enter">
               <div ref={mobilePhotoRef} className="hero-parallax-img relative w-[270px] sm:w-[330px]">
                 <img
                   src="/photo.png"
                   alt="Tushar Pawar portrait cutout"
-                  className="w-full h-auto object-contain drop-shadow-[0_18px_40px_rgba(233,30,140,0.28)]"
+                  className="w-full h-auto object-contain drop-shadow-[0_18px_40px_rgba(2,11,26,0.85)]"
                 />
               </div>
             </div>
@@ -382,16 +377,16 @@ const HeroSection = () => {
         </div>
 
         {/* "Presented by"-style Bottom Tech Stack Row */}
-        <div className="relative z-20 pb-8 pt-4 lg:w-[62%]">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--muted)] mb-3.5">
+        <div className="relative z-20 pb-5 pt-2 lg:w-[62%]">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)] mb-2.5">
             Core Stack &amp; Platforms:
           </p>
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-5">
             {featuredHeroStack.map((item, idx) => (
-              <div key={item.name} className="flex items-center gap-4 sm:gap-6">
+              <div key={item.name} className="flex items-center gap-4 sm:gap-5">
                 <div className="flex items-center gap-2 text-white/90 hover:text-white transition-colors">
-                  <span className="text-lg sm:text-xl text-white">{item.icon}</span>
-                  <span className="text-sm sm:text-base font-semibold tracking-tight">
+                  <span className="text-base sm:text-lg text-white">{item.icon}</span>
+                  <span className="text-xs sm:text-sm font-semibold tracking-tight">
                     {item.name}
                   </span>
                 </div>
@@ -404,17 +399,35 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Desktop Cutout Photo Anchored Bottom-Right Overlapping Section Edge */}
-      <div className="hidden lg:block absolute -bottom-2 right-2 xl:right-10 w-[390px] xl:w-[450px] z-10 pointer-events-none select-none">
-        <div className="hero-image-enter">
+      {/* Subtle upper-right watermark crest (matches reference top-right emblem) */}
+      <div
+        aria-hidden="true"
+        className="hidden lg:flex flex-col items-center absolute top-6 right-10 xl:right-14 z-20 opacity-80 pointer-events-none select-none"
+      >
+        <div className="w-10 h-10 rounded-xl border border-white/25 bg-white/5 backdrop-blur-sm flex items-center justify-center">
+          <span className="text-xs font-extrabold tracking-widest text-white">TP</span>
+        </div>
+        <span className="text-[8px] font-semibold tracking-[0.25em] text-white/80 uppercase mt-1">
+          PUNE • IN
+        </span>
+      </div>
+
+      {/* Desktop Cutout Photo Anchored Bottom-Right (waist-up showing tablet, fits cleanly in viewport) */}
+      <div className="hidden lg:flex items-end justify-end absolute bottom-0 right-2 xl:right-10 h-[72vh] max-h-[540px] min-h-[380px] z-10 pointer-events-none select-none">
+        {/* Rim spotlight halo behind cutout portrait */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-4 bottom-4 top-10 rounded-full bg-[radial-gradient(circle,rgba(29,99,200,0.42)_0%,rgba(233,30,140,0.16)_48%,transparent_72%)] blur-2xl"
+        />
+        <div className="hero-image-enter h-full">
           <div
             ref={desktopPhotoRef}
-            className="hero-parallax-img relative"
+            className="hero-parallax-img relative h-full"
           >
             <img
               src="/photo.png"
               alt="Tushar Pawar portrait cutout"
-              className="w-full h-auto object-contain drop-shadow-[0_24px_50px_rgba(13,11,30,0.85)]"
+              className="h-full w-auto object-contain object-bottom drop-shadow-[0_20px_50px_rgba(2,11,26,0.9)]"
             />
           </div>
         </div>

@@ -19,7 +19,7 @@ const Header = () => {
   return (
     <header
       className={`sticky top-0 left-0 right-0 z-50 w-full metallic-header ${
-        scrolled ? "scrolled py-2.5 xl:py-3" : "py-4 xl:py-5"
+        scrolled ? "scrolled py-2 xl:py-2.5" : "py-3 xl:py-3.5"
       }`}
     >
       <div className="container mx-auto flex justify-between items-center gap-6 px-4 md:px-6">
@@ -46,15 +46,15 @@ const Header = () => {
           <Nav />
         </div>
 
-        {/* Far-right badge / CTA */}
+        {/* Far-right emblem badge + CTA */}
         <div className="hidden lg:flex items-center gap-3 shrink-0">
-          <span
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#04142c]/25 bg-white/70 text-[var(--header-text)] text-xs font-semibold tracking-wide"
-            aria-label="Portfolio role badge"
+          <div
+            className="flex flex-col items-center justify-center px-2.5 py-1 rounded-lg bg-[#0b4ca6]/10 border border-[#0b4ca6]/30 text-[#093e8a] leading-none"
+            aria-label="Tushar Pawar Monogram"
           >
-            <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
-            ML • DS
-          </span>
+            <span className="text-xs font-extrabold tracking-widest">TP</span>
+            <span className="text-[7px] font-bold tracking-[0.2em] uppercase mt-0.5">AI • ML</span>
+          </div>
           <a href="#contact" className="pill-btn pill-btn-magenta text-sm py-2 px-5">
             Let&apos;s Talk
           </a>
