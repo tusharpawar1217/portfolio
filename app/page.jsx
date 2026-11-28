@@ -102,7 +102,7 @@ const projects = [
       "Production certificate-management system for SPPU's Department of Technology built with Next.js 14, TypeScript, and MongoDB Atlas. Automated credential generation, distribution, and public verification end-to-end.",
     stack: ["Next.js 14", "TypeScript", "MongoDB", "Supabase", "pdf-lib"],
     github: "https://github.com/tusharpawar1217",
-    live: null,
+    live: "https://credential-system-two.vercel.app/",
     metrics: ["400+ verified certificates issued", "Sub-500ms PDF generation", "JWT session auth"],
   },
   {
